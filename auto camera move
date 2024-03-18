@@ -1,0 +1,33 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerCamera : MonoBehaviour
+{
+    float rx = 0;
+    float ry = 0;
+    public float rotateSpeed;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        rx = transform.eulerAngles.x;
+        ry = transform.eulerAngles.y;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        RotateCamera();
+    }
+
+    void RotateCamera()
+    {
+        float h = Input.GetAxis("Mouse X");
+        float v = Input.GetAxis("Mouse Y");
+        rx += v * rotateSpeed * Time.deltaTime;
+        ry += h * rotateSpeed * Time.deltaTime;
+        transform.eulerAngles = new Vector3(-rx, ry, 0);
+    }
+}
