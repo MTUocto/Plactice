@@ -1,0 +1,89 @@
+{
+    Rigidbody2D rigid;
+    SpriteRenderer spriteRenderer;
+
+    public float maxSpeed;
+    public float jumpPower;
+    public int jumpCount = 0;
+    public int maxJumpCount = 2;
+
+    Vector3 dirVec;
+    GameObject scanObject;
+
+    void Awake()
+    {
+        rigid = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+
+    }
+
+    void Update()
+    {
+        if (Input.GetButtonUp("Horizontal"))
+        {
+            rigid.velocity = new Vector2(rigid.velocity.normalized.x * 0.2f, rigid.velocity.y);
+        }
+
+
+        float h = Input.GetAxisRaw("Horizontal");
+
+        if (h == -1)
+            dirVec = Vector3.left;
+        else if (h == 1)
+            dirVec = Vector3.right;
+
+        if (Input.GetKeyDown(KeyCode.Space) && jumpCount < maxJumpCount)
+        {
+            rigid.velocity = Vector2.up * jumpPower;
+            jumpCount++;
+        }
+    }
+    void FixedUpdate()
+    {
+        float h = Input.GetAxisRaw("Horizontal");
+        rigid.AddForce(Vector2.right * h, ForceMode2D.Impulse);
+
+        if (rigid.velocity.x > maxSpeed)
+            rigid.velocity = new Vector2(maxSpeed, rigid.velocity.y);
+        else if (rigid.velocity.x < -maxSpeed)
+            rigid.velocity = new Vector2(-maxSpeed, rigid.velocity.y);
+
+
+        if (rigid.velocity.y < 0)
+        {
+            Debug.DrawRay(rigid.position, Vector3.down, new Color(1, 0, 0));
+            RaycastHit2D downRay = Physics2D.Raycast(rigid.position, Vector3.down, 1, LayerMask.GetMask("Ground"));
+
+            if (downRay.collider != null && downRay.distance < 0.5f)
+            {
+                Debug.Log("Ground");
+                jumpCount = 0;
+            }
+        }
+
+        if (rigid.velocity.y < 0)
+        {
+            Debug.DrawRay(rigid.position, Vector3.down, new Color(1, 0, 0));
+            RaycastHit2D downRay = Physics2D.Raycast(rigid.position, Vector3.down, 1, LayerMask.GetMask("Object"));
+
+            if (downRay.collider != null && downRay.distance < 0.5f)
+            {
+                Debug.Log("Object");
+                jumpCount = 0;
+            }
+
+            Debug.DrawRay(rigid.position, dirVec * 1.5f, new Color(1, 0, 0));
+            RaycastHit2D rayHit2 = Physics2D.Raycast(rigid.position, dirVec, 1.5f, LayerMask.GetMask("Object"));
+
+            if (rayHit2.collider != null)
+            {
+                scanObject = rayHit2.collider.gameObject;
+            }
+            else
+            {
+                scanObject = null;
+            }
+
+        }
+    }
+}
